@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "RouteCastle",
-    "slug": "routecastle",
+    "slug": "routecastle-app",              // ✅ Must match expo.dev project
     "version": "1.0.0",
     "sdkVersion": "50.0.0",
     "platforms": ["ios", "android"],
@@ -15,3 +15,4 @@
     }
   }
 }
+
