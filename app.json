@@ -1,0 +1,14 @@
+{
+  "expo": {
+    "name": "RouteCastle",
+    "slug": "routecastle",
+    "version": "1.0.0",
+    "sdkVersion": "50.0.0",
+    "platforms": ["ios", "android"],
+    "extra": {
+      "eas": {
+        "projectId": "a10ce5a0-3e52-4ff0-a9a5-d10f3d53a7f4"
+      }
+    }
+  }
+}
