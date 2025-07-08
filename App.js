@@ -2,10 +2,12 @@ import React, { useState } from 'react';
 import { View, Button, Alert, Text, Image, ActivityIndicator, StyleSheet } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import MapboxGL from '@react-native-mapbox-gl/maps';
+import Constants from 'expo-constants';
+import Tesseract from 'tesseract.js';
 import { parseRouteSheet } from './parseRouteSheet';
 
 // Initialize Mapbox (no API key needed for basic usage)
-MapboxGL.setAccessToken(null); // Optional for premium features
+MapboxGL.setAccessToken(null);
 
 export default function App() {
   const [image, setImage] = useState(null);
@@ -20,7 +22,7 @@ export default function App() {
   const geocodeAddress = async (address) => {
     try {
       const response = await fetch(
-        `https://api.opencagedata.com/geocode/v1/json?q=${encodeURIComponent(address)}&key=${expo.config.extra.opencageApiKey}`
+        `https://api.opencagedata.com/geocode/v1/json?q=${encodeURIComponent(address)}&key=${Constants.expoConfig?.extra?.opencageApiKey || '164d3314dc4041418021ce63c8095c81'}`
       );
       const data = await response.json();
       if (data.results?.length > 0) {
@@ -98,7 +100,7 @@ export default function App() {
 
       <MapboxGL.MapView
         style={styles.map}
-        styleURL="https://demotiles.maplibre.org/style.json" // Free tile server
+        styleURL="https://demotiles.maplibre.org/style.json"
         {...viewport}
         onPress={feature => console.log('Map pressed:', feature)}
       >
