@@ -5,8 +5,7 @@
     "version": "1.0.0",
     "platforms": ["ios", "android"],
     "android": {
-      "package": "com.avrgpapa.routecastle",
-      "compileSdkVersion": 34
+      "package": "com.avrgpapa.routecastle"
     },
     "extra": {
       "eas": {
