@@ -4,9 +4,7 @@
     "slug": "routecastle-app",
     "version": "1.0.0",
     "orientation": "portrait",
-    "sdkVersion": "50.0.0",
-    "platforms": ["android"],
-    "jsEngine": "hermes",
+    "jsEngine": "hermes",  // ← Hermes explicitly enabled
     "icon": "./assets/icon.png",
     "splash": {
       "image": "./assets/splash.png",
@@ -20,8 +18,11 @@
     "android": {
       "package": "com.avrgpapa.routecastle",
       "versionCode": 1,
-      "permissions": [],
-      "jsEngine": "hermes"
+      "permissions": [
+        "INTERNET",
+        "ACCESS_FINE_LOCATION",
+        "READ_EXTERNAL_STORAGE"
+      ]
     },
     "extra": {
       "eas": {
