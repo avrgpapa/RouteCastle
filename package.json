@@ -4,8 +4,8 @@
   "main": "App.js",
   "dependencies": {
     "expo": "~50.0.3",
-    "expo-image-picker": "~14.0.1",
+    "expo-image-picker": "~14.7.1",
     "react": "18.2.0",
-    "react-native": "0.73.0"
+    "react-native": "0.73.6"
   }
 }
