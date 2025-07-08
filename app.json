@@ -7,6 +7,9 @@
     "android": {
       "package": "com.avrgpapa.routecastle"
     },
+    "splash": {
+      "backgroundColor": "#ffffff"
+    },
     "extra": {
       "eas": {
         "projectId": "a10ce5a0-3e52-4ff0-a9a5-d10f3d53a7f4"
