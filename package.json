@@ -4,8 +4,8 @@
   "main": "App.js",
   "dependencies": {
     "expo": "~50.0.0",
-    "expo-image-picker": "~14.0.1",
+    "expo-image-picker": "15.0.0",       // ✅ version for SDK 50
     "react": "18.2.0",
-    "react-native": "0.73.0"
+    "react-native": "0.73.4"             // ✅ matches SDK 50 exactly
   }
 }
