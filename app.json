@@ -3,16 +3,21 @@
     "name": "RouteCastle",
     "slug": "routecastle-app",
     "version": "1.0.0",
-    "platforms": ["ios", "android"],
+    "sdkVersion": "50.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "updates": {
+      "fallbackToCacheTimeout": 0
+    },
+    "assetBundlePatterns": ["**/*"],
     "android": {
       "package": "com.avrgpapa.routecastle",
-      "permissions": [
-        "READ_MEDIA_IMAGES",
-        "READ_MEDIA_VIDEO"
-      ]
-    },
-    "splash": {
-      "backgroundColor": "#ffffff"
+      "permissions": ["READ_EXTERNAL_STORAGE"]
     },
     "extra": {
       "eas": {
