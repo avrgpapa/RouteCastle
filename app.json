@@ -4,7 +4,7 @@
     "slug": "routecastle-app",
     "version": "1.0.0",
     "orientation": "portrait",
-    "jsEngine": "hermes",  // ← Hermes explicitly enabled
+    "jsEngine": "hermes",
     "icon": "./assets/icon.png",
     "splash": {
       "image": "./assets/splash.png",
@@ -15,19 +15,34 @@
       "fallbackToCacheTimeout": 0
     },
     "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.avrgpapa.routecastle"
+    },
     "android": {
       "package": "com.avrgpapa.routecastle",
       "versionCode": 1,
       "permissions": [
         "INTERNET",
         "ACCESS_FINE_LOCATION",
-        "READ_EXTERNAL_STORAGE"
-      ]
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE"
+      ],
+      "softwareKeyboardLayoutMode": "pan"
     },
+    "plugins": [
+      [
+        "@react-native-mapbox-gl/maps",
+        {
+          "RNMapboxMapsDownloadToken": "YOUR_MAPBOX_ACCESS_TOKEN"  // Optional for premium features
+        }
+      ]
+    ],
     "extra": {
       "eas": {
         "projectId": "a10ce5a0-3e52-4ff0-a9a5-d10f3d53a7f4"
-      }
+      },
+      "opencageApiKey": "164d3314dc4041418021ce63c8095c81"  // Moved from App.js
     }
   }
 }
