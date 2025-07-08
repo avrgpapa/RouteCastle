@@ -54,106 +54,106 @@ function normalizeAddress(address) {
 }
 
 /**
+ * Maps various input status strings to a standard set.
+ */
+const STATUS_MAP = {
+  active: 'active',
+  suspended: 'suspended',
+  canceled: 'canceled',
+  cancelled: 'canceled', // UK spelling
+  cancel: 'canceled',
+  canc: 'canceled',
+};
+
+/**
  * Validates and standardizes status values
  * @param {string} status - Raw status string
- * @returns {string} Validated status
+ * @returns {string} Validated status or 'unknown'
  */
 function validateStatus(status) {
-  const ALLOWED_STATUSES = ['active', 'suspended', 'canceled'];
+  if (!status) return 'unknown';
   const normalized = status.toLowerCase();
-  return ALLOWED_STATUSES.includes(normalized) ? normalized : 'unknown';
+  return STATUS_MAP[normalized] || 'unknown';
 }
 
 /**
- * Detects column indexes from header line for address, status, notes.
- * @param {string} headerLine
- * @returns {{address: number, status: number, notes: number}} column index map
+ * Cleans and normalizes input lines
+ * Replaces non-breaking spaces, normalizes unicode, trims whitespace.
+ * @param {string} line
+ * @returns {string}
  */
-function detectColumns(headerLine) {
-  const headers = headerLine
-    .toLowerCase()
-    .split(/[\t,|]/)
-    .map(h => h.trim());
-
-  return {
-    address: headers.findIndex(h => h.includes('address')),
-    status: headers.findIndex(h => h.includes('status')),
-    notes: headers.findIndex(h => h.includes('notes')),
-  };
+function cleanLine(line) {
+  return line
+    .replace(/\u00A0/g, ' ') // Non-breaking spaces to space
+    .normalize('NFKC') // Unicode normalization
+    .trim();
 }
 
 /**
  * Parses route sheet text from OCR or CSV input.
- * Supports auto-detection of column order from header row.
+ * Supports tabs, multi-space, commas, quoted CSV fields, comments, flexible status,
+ * and optional debug logging.
  * Returns array of {address, status, notes}.
  * 
  * @param {string} rawText - The input text to parse
- * @param {boolean} [strictMode=false] - Whether to require valid statuses
- * @param {boolean} [hasHeader=true] - Whether first line is header row
+ * @param {object} [options] - Parsing options
+ * @param {boolean} [options.strictStatus=false] - Whether to require valid statuses
+ * @param {boolean} [options.debug=false] - Enable debug logging
  * @returns {Array<{address: string, status: string, notes: string}>} Parsed stops
  */
-export function parseRouteSheet(rawText, strictMode = false, hasHeader = true) {
+export function parseRouteSheet(rawText, options = {}) {
+  const { strictStatus = false, debug = false } = options;
+
   if (!rawText || typeof rawText !== 'string') {
-    console.warn(`Invalid parseRouteSheet input: ${typeof rawText}`, rawText);
+    if (debug) console.warn(`Invalid parseRouteSheet input: ${typeof rawText}`, rawText);
     return [];
   }
 
   const lines = rawText
     .split('\n')
-    .map(line => line.trim())
-    .filter(Boolean);
-
-  if (lines.length === 0) return [];
-
-  let columnMapping = {
-    address: 0,
-    status: 1,
-    notes: 2,
-  };
-
-  let dataLines = lines;
-
-  if (hasHeader) {
-    columnMapping = detectColumns(lines[0]);
-    dataLines = lines.slice(1);
-
-    // If any required column is missing, fallback to default indexes
-    if (
-      columnMapping.address === -1 &&
-      columnMapping.status === -1 &&
-      columnMapping.notes === -1
-    ) {
-      columnMapping = { address: 0, status: 1, notes: 2 };
-      dataLines = lines; // treat all lines as data
-    }
-  }
+    .map(cleanLine)
+    .filter(line => line && !line.startsWith('#') && !line.startsWith('//'));
 
   const stops = [];
 
-  for (const line of dataLines) {
+  for (const [index, line] of lines.entries()) {
     let parts = [];
 
+    // Determine delimiter and parse accordingly
     if (line.includes('\t')) {
       parts = line.split('\t').map(p => p.trim());
+      if (debug) console.log(`Line ${index + 1} split by tab:`, parts);
     } else if (line.includes(',')) {
       parts = parseCSVLine(line);
+      if (debug) console.log(`Line ${index + 1} split by CSV:`, parts);
     } else {
+      // Fallback: split by 2+ spaces replaced with pipe (|), then split by pipe
       const normalized = line.replace(/\s{2,}/g, '|');
       parts = normalized.split('|').map(p => p.trim());
+      if (debug) console.log(`Line ${index + 1} split by spaces:`, parts);
     }
 
-    const rawAddress = parts[columnMapping.address];
-    const rawStatus = parts[columnMapping.status] || '';
-    const rawNotes = parts[columnMapping.notes] || '';
+    // Extract components with defaults
+    const [rawAddress, rawStatus = '', rawNotes = ''] = parts;
 
-    if (!rawAddress) continue;
+    if (!rawAddress) {
+      if (debug) console.warn(`Line ${index + 1} skipped: Missing address.`);
+      continue;
+    }
 
+    // Process fields
     const address = normalizeAddress(rawAddress);
-    const status = strictMode ? validateStatus(rawStatus) : rawStatus.toLowerCase();
+    const status = strictStatus ? validateStatus(rawStatus) : (rawStatus || '').toLowerCase();
     const notes = rawNotes.trim();
+
+    if (strictStatus && status === 'unknown') {
+      if (debug) console.warn(`Line ${index + 1} has invalid status: '${rawStatus}'. Marked as unknown.`);
+    }
 
     stops.push({ address, status, notes });
   }
+
+  if (debug) console.log(`Parsed ${stops.length} stops.`);
 
   return stops;
 }
