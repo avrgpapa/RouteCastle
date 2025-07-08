@@ -118,17 +118,25 @@ export default function App() {
       )}
 
       <MapView style={{ flex: 1 }} region={region}>
-        {stops.map((stop, idx) =>
-          stop.latitude && stop.longitude ? (
-            <Marker
-              key={idx}
-              coordinate={{ latitude: stop.latitude, longitude: stop.longitude }}
-              pinColor={getPinColor(stop.status)}
-              title={stop.address}
-              description={stop.notes}
-            />
-          ) : null
-        )}
+        {stops.map((stop, idx) => {
+          const status = (stop.status || '').toLowerCase();
+          if (
+            stop.latitude &&
+            stop.longitude &&
+            (status === 'active' || status === 'suspended')
+          ) {
+            return (
+              <Marker
+                key={idx}
+                coordinate={{ latitude: stop.latitude, longitude: stop.longitude }}
+                pinColor={getPinColor(stop.status)}
+                title={stop.address}
+                description={stop.notes}
+              />
+            );
+          }
+          return null;
+        })}
       </MapView>
     </View>
   );
