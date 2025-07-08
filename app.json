@@ -5,7 +5,11 @@
     "version": "1.0.0",
     "platforms": ["ios", "android"],
     "android": {
-      "package": "com.avrgpapa.routecastle"
+      "package": "com.avrgpapa.routecastle",
+      "permissions": [
+        "READ_MEDIA_IMAGES",
+        "READ_MEDIA_VIDEO"
+      ]
     },
     "splash": {
       "backgroundColor": "#ffffff"
