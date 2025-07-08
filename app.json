@@ -23,11 +23,16 @@
       "package": "com.avrgpapa.routecastle",
       "versionCode": 1,
       "permissions": [],
-      "jsEngine": "hermes",
-      "compileSdkVersion": 34,
-      "targetSdkVersion": 34,
-      "minSdkVersion": 21
+      "jsEngine": "hermes"
     },
+    "plugins": [
+      [
+        "react-native-maps",
+        {
+          "googleMapsApiKey": ""
+        }
+      ]
+    ],
     "extra": {
       "eas": {
         "projectId": "a10ce5a0-3e52-4ff0-a9a5-d10f3d53a7f4"
