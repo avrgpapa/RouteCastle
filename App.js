@@ -1,154 +1,150 @@
 import React, { useState } from 'react';
 import { View, Button, Alert, Text, Image, ActivityIndicator, StyleSheet } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
-import MapView, { Marker } from 'react-native-maps';
-import { parseRouteSheet } from './utils/parseRouteSheet';
-import Tesseract from 'tesseract.js';
+import MapboxGL from '@react-native-mapbox-gl/maps';
+import { parseRouteSheet } from './parseRouteSheet';
 
-// Replace this with your OpenCage API key
-const OPENCAGE_API_KEY = '164d3314dc4041418021ce63c8095c81';
+// Initialize Mapbox (no API key needed for basic usage)
+MapboxGL.setAccessToken(null); // Optional for premium features
 
 export default function App() {
   const [image, setImage] = useState(null);
   const [stops, setStops] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [region, setRegion] = useState({
+  const [viewport, setViewport] = useState({
     latitude: 37.7749,
     longitude: -122.4194,
-    latitudeDelta: 0.1,
-    longitudeDelta: 0.1,
+    zoomLevel: 10,
   });
 
   const geocodeAddress = async (address) => {
     try {
-      const url = `https://api.opencagedata.com/geocode/v1/json?q=${encodeURIComponent(
-        address
-      )}&key=${OPENCAGE_API_KEY}&limit=1`;
-      const res = await fetch(url);
-      const data = await res.json();
-      if (
-        data.results &&
-        data.results.length > 0 &&
-        data.results[0].geometry
-      ) {
-        return {
-          latitude: data.results[0].geometry.lat,
-          longitude: data.results[0].geometry.lng,
-        };
+      const response = await fetch(
+        `https://api.opencagedata.com/geocode/v1/json?q=${encodeURIComponent(address)}&key=${expo.config.extra.opencageApiKey}`
+      );
+      const data = await response.json();
+      if (data.results?.length > 0) {
+        return data.results[0].geometry;
       }
-    } catch (e) {
-      console.warn('Geocoding error:', e);
+    } catch (error) {
+      console.warn('Geocoding error:', error);
     }
     return null;
   };
 
   const handlePickImage = async () => {
     setLoading(true);
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: false,
-      quality: 1,
-    });
+    try {
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: false,
+        quality: 1,
+      });
 
-    if (!result.canceled) {
-      const uri = result.assets?.[0]?.uri || result.uri;
-      setImage(uri);
+      if (!result.canceled) {
+        const uri = result.assets?.[0]?.uri || result.uri;
+        setImage(uri);
 
-      try {
-        const {
-          data: { text },
-        } = await Tesseract.recognize(uri, 'eng', { logger: () => {} });
+        // OCR Processing
+        const { data: { text } } = await Tesseract.recognize(uri, 'eng');
+        const parsedStops = parseRouteSheet(text);
 
-        const parsedStops = parseRouteSheet(text) || [];
-
-        const stopsWithCoords = [];
-        for (const stop of parsedStops) {
-          const coords = await geocodeAddress(stop.address);
-          stopsWithCoords.push({ ...stop, ...coords });
-        }
+        // Geocode addresses
+        const stopsWithCoords = await Promise.all(
+          parsedStops.map(async stop => ({
+            ...stop,
+            ...(await geocodeAddress(stop.address))
+          })
+        );
 
         setStops(stopsWithCoords);
-
-        if (stopsWithCoords.length > 0 && stopsWithCoords[0].latitude) {
-          setRegion({
+        if (stopsWithCoords[0]?.latitude) {
+          setViewport({
             latitude: stopsWithCoords[0].latitude,
             longitude: stopsWithCoords[0].longitude,
-            latitudeDelta: 0.1,
-            longitudeDelta: 0.1,
+            zoomLevel: 12,
           });
         }
-
-        Alert.alert('OCR Text', text);
-      } catch (e) {
-        Alert.alert('OCR Error', e.message);
       }
+    } catch (error) {
+      Alert.alert('Error', error.message);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   const getPinColor = (status) => {
     switch ((status || '').toLowerCase()) {
-      case 'active':
-        return 'green';
-      case 'suspended':
-        return 'red';
-      default:
-        return 'blue';
+      case 'active': return '#00FF00';
+      case 'suspended': return '#FF0000';
+      default: return '#0000FF';
     }
   };
 
   return (
-    <View style={{ flex: 1 }}>
-      <View style={{ flexDirection: 'row', justifyContent: 'center', padding: 10 }}>
-        <Button title="📸 Scan Route Sheet" onPress={handlePickImage} />
-      </View>
+    <View style={styles.container}>
+      <Button title="📸 Scan Route Sheet" onPress={handlePickImage} />
 
       {loading && (
         <View style={styles.loadingOverlay}>
           <ActivityIndicator size="large" color="#0000ff" />
-          <Text>Processing OCR and Geocoding...</Text>
+          <Text>Processing...</Text>
         </View>
       )}
 
       {image && (
-        <Image
-          source={{ uri: image }}
-          style={{ width: '100%', height: 200, resizeMode: 'contain' }}
-        />
+        <Image source={{ uri: image }} style={styles.previewImage} />
       )}
 
-      <MapView style={{ flex: 1 }} region={region}>
-        {stops.map((stop, idx) => {
-          const status = (stop.status || '').toLowerCase();
-          if (
-            stop.latitude &&
-            stop.longitude &&
-            (status === 'active' || status === 'suspended')
-          ) {
-            return (
-              <Marker
-                key={idx}
-                coordinate={{ latitude: stop.latitude, longitude: stop.longitude }}
-                pinColor={getPinColor(stop.status)}
-                title={stop.address}
-                description={stop.notes}
-              />
-            );
-          }
-          return null;
-        })}
-      </MapView>
+      <MapboxGL.MapView
+        style={styles.map}
+        styleURL="https://demotiles.maplibre.org/style.json" // Free tile server
+        {...viewport}
+        onPress={feature => console.log('Map pressed:', feature)}
+      >
+        {stops.map((stop, index) => (
+          <MapboxGL.Marker
+            key={`stop-${index}`}
+            coordinate={[stop.longitude, stop.latitude]}
+          >
+            <View style={[
+              styles.marker,
+              { backgroundColor: getPinColor(stop.status) }
+            ]} />
+          </MapboxGL.Marker>
+        ))}
+      </MapboxGL.MapView>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: 10,
+  },
+  map: {
+    flex: 1,
+    marginTop: 10,
+  },
+  previewImage: {
+    width: '100%',
+    height: 200,
+    resizeMode: 'contain',
+    marginVertical: 10,
+  },
+  marker: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    borderWidth: 2,
+    borderColor: 'white',
+  },
   loadingOverlay: {
-    position: 'absolute',
-    top: '50%',
-    left: 0,
-    right: 0,
+    ...StyleSheet.absoluteFillObject,
+    justifyContent: 'center',
     alignItems: 'center',
-    zIndex: 10,
+    backgroundColor: 'rgba(255,255,255,0.8)',
+    zIndex: 100,
   },
 });
