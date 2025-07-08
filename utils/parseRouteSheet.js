@@ -65,25 +65,34 @@ function validateStatus(status) {
 }
 
 /**
+ * Detects column indexes from header line for address, status, notes.
+ * @param {string} headerLine
+ * @returns {{address: number, status: number, notes: number}} column index map
+ */
+function detectColumns(headerLine) {
+  const headers = headerLine
+    .toLowerCase()
+    .split(/[\t,|]/)
+    .map(h => h.trim());
+
+  return {
+    address: headers.findIndex(h => h.includes('address')),
+    status: headers.findIndex(h => h.includes('status')),
+    notes: headers.findIndex(h => h.includes('notes')),
+  };
+}
+
+/**
  * Parses route sheet text from OCR or CSV input.
- * Supports tabs, multi-space, commas, and quoted CSV fields.
+ * Supports auto-detection of column order from header row.
  * Returns array of {address, status, notes}.
- * 
- * @example
- * // Tab-separated
- * parseRouteSheet('123 Main St\tActive\tLeave at door')
- * // Returns [{ address: '123 Main St', status: 'active', notes: 'Leave at door' }]
- * 
- * @example
- * // CSV with quotes
- * parseRouteSheet('"456 Oak Dr, Apt 2", Suspended, "Customer request"')
- * // Returns [{ address: '456 Oak Dr, Apt 2', status: 'suspended', notes: 'Customer request' }]
  * 
  * @param {string} rawText - The input text to parse
  * @param {boolean} [strictMode=false] - Whether to require valid statuses
+ * @param {boolean} [hasHeader=true] - Whether first line is header row
  * @returns {Array<{address: string, status: string, notes: string}>} Parsed stops
  */
-export function parseRouteSheet(rawText, strictMode = false) {
+export function parseRouteSheet(rawText, strictMode = false, hasHeader = true) {
   if (!rawText || typeof rawText !== 'string') {
     console.warn(`Invalid parseRouteSheet input: ${typeof rawText}`, rawText);
     return [];
@@ -94,12 +103,36 @@ export function parseRouteSheet(rawText, strictMode = false) {
     .map(line => line.trim())
     .filter(Boolean);
 
+  if (lines.length === 0) return [];
+
+  let columnMapping = {
+    address: 0,
+    status: 1,
+    notes: 2,
+  };
+
+  let dataLines = lines;
+
+  if (hasHeader) {
+    columnMapping = detectColumns(lines[0]);
+    dataLines = lines.slice(1);
+
+    // If any required column is missing, fallback to default indexes
+    if (
+      columnMapping.address === -1 &&
+      columnMapping.status === -1 &&
+      columnMapping.notes === -1
+    ) {
+      columnMapping = { address: 0, status: 1, notes: 2 };
+      dataLines = lines; // treat all lines as data
+    }
+  }
+
   const stops = [];
 
-  for (const line of lines) {
+  for (const line of dataLines) {
     let parts = [];
 
-    // Determine delimiter and parse accordingly
     if (line.includes('\t')) {
       parts = line.split('\t').map(p => p.trim());
     } else if (line.includes(',')) {
@@ -109,11 +142,12 @@ export function parseRouteSheet(rawText, strictMode = false) {
       parts = normalized.split('|').map(p => p.trim());
     }
 
-    // Extract components with defaults
-    const [rawAddress, rawStatus = '', rawNotes = ''] = parts;
+    const rawAddress = parts[columnMapping.address];
+    const rawStatus = parts[columnMapping.status] || '';
+    const rawNotes = parts[columnMapping.notes] || '';
+
     if (!rawAddress) continue;
 
-    // Process fields
     const address = normalizeAddress(rawAddress);
     const status = strictMode ? validateStatus(rawStatus) : rawStatus.toLowerCase();
     const notes = rawNotes.trim();
