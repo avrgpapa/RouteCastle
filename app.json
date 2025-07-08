@@ -17,7 +17,10 @@
     "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.avrgpapa.routecastle"
+      "bundleIdentifier": "com.avrgpapa.routecastle",
+      "config": {
+        "usesNonExemptEncryption": false
+      }
     },
     "android": {
       "package": "com.avrgpapa.routecastle",
@@ -28,13 +31,28 @@
         "READ_EXTERNAL_STORAGE",
         "WRITE_EXTERNAL_STORAGE"
       ],
-      "softwareKeyboardLayoutMode": "pan"
+      "softwareKeyboardLayoutMode": "pan",
+      "config": {
+        "mapbox": {
+          "accessToken": null
+        }
+      },
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#FFFFFF"
+      }
     },
     "plugins": [
       [
         "@react-native-mapbox-gl/maps",
         {
-          "RNMapboxMapsDownloadToken": "YOUR_MAPBOX_ACCESS_TOKEN"  // Optional for premium features
+          "RNMapboxMapsDownloadToken": "YOUR_MAPBOX_ACCESS_TOKEN"
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Allow RouteCastle to access your photos for route sheets."
         }
       ]
     ],
@@ -42,7 +60,7 @@
       "eas": {
         "projectId": "a10ce5a0-3e52-4ff0-a9a5-d10f3d53a7f4"
       },
-      "opencageApiKey": "164d3314dc4041418021ce63c8095c81"  // Moved from App.js
+      "opencageApiKey": "164d3314dc4041418021ce63c8095c81"
     }
   }
 }
