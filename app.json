@@ -17,10 +17,7 @@
     "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.avrgpapa.routecastle",
-      "config": {
-        "usesNonExemptEncryption": false
-      }
+      "bundleIdentifier": "com.avrgpapa.routecastle"
     },
     "android": {
       "package": "com.avrgpapa.routecastle",
@@ -36,23 +33,13 @@
         "mapbox": {
           "accessToken": null
         }
-      },
-      "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#FFFFFF"
       }
     },
     "plugins": [
       [
-        "@react-native-mapbox-gl/maps",
+        "@rnmapbox/maps",
         {
           "RNMapboxMapsDownloadToken": "YOUR_MAPBOX_ACCESS_TOKEN"
-        }
-      ],
-      [
-        "expo-image-picker",
-        {
-          "photosPermission": "Allow RouteCastle to access your photos for route sheets."
         }
       ]
     ],
