@@ -6,11 +6,12 @@
     "production": {
       "android": {
         "buildType": "apk",
-        "gradleCommand": ":app:assembleRelease",
-        "kotlinVersion": "1.8.22",  // Explicit Kotlin version for EAS Build
-        "bundlerHermes": true,      // Force Hermes bundler
         "env": {
           "MAPBOX_DOWNLOADS_TOKEN": "sk.eyJ1IjoiYXZyZ3BhcGEiLCJhIjoiY21jdjkwMzY3MDg4ejJscTJlNnRzazd3dSJ9.z8sPRgeeEz4gfVJyWIQHfA"
+        },
+        "gradleCommand": ":app:assembleRelease",
+        "config": {
+          "kotlinVersion": "1.8.22"  
         }
       }
     }
