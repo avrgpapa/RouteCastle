@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
 import { View, Button, Alert, Text, Image, ActivityIndicator, StyleSheet } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
-import MapboxGL from '@react-native-mapbox-gl/maps';
+import MapboxGL from '@rnmapbox/maps';
 import Constants from 'expo-constants';
 import Tesseract from 'tesseract.js';
 import { parseRouteSheet } from './parseRouteSheet';
 
-// Initialize Mapbox (no API key needed for basic usage)
 MapboxGL.setAccessToken(null);
 
 export default function App() {
