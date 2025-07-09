@@ -17,7 +17,12 @@
     "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.avrgpapa.routecastle"
+      "bundleIdentifier": "com.avrgpapa.routecastle",
+      "infoPlist": {
+        "UIViewControllerBasedStatusBarAppearance": true,
+        "UIStatusBarStyle": "light-content"
+      },
+      "usesIphoneSafeArea": true
     },
     "android": {
       "package": "com.avrgpapa.routecastle",
@@ -28,14 +33,17 @@
         "READ_EXTERNAL_STORAGE",
         "WRITE_EXTERNAL_STORAGE"
       ],
-      "softwareKeyboardLayoutMode": "pan"
+      "softwareKeyboardLayoutMode": "pan",
+      "windowSoftInputMode": "adjustResize",
+      "kotlinVersion": "1.8.22"  // Added Kotlin version
     },
     "plugins": [
       [
         "@rnmapbox/maps",
         {
           "RNMapboxMapsDownloadToken": "sk.eyJ1IjoiYXZyZ3BhcGEiLCJhIjoiY21jdjkwMzY3MDg4ejJscTJlNnRzazd3dSJ9.z8sPRgeeEz4gfVJyWIQHfA",
-          "RNMapboxMapsUseV11": true
+          "RNMapboxMapsUseV11": true,
+          "RNMapboxMapsEnableKotlinNullChecks": false  // Added null checks config
         }
       ]
     ],
