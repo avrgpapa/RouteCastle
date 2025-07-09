@@ -28,12 +28,7 @@
         "READ_EXTERNAL_STORAGE",
         "WRITE_EXTERNAL_STORAGE"
       ],
-      "softwareKeyboardLayoutMode": "pan",
-      "config": {
-        "mapbox": {
-          "accessToken": null
-        }
-      }
+      "softwareKeyboardLayoutMode": "pan"
     },
     "plugins": [
       [
