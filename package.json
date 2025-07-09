@@ -9,7 +9,7 @@
     "ios": "expo start --ios"
   },
   "dependencies": {
-    "@react-native-mapbox-gl/maps": "^10.0.0",
+    "@rnmapbox/maps": "^10.0.0",
     "expo": "~50.0.0",
     "expo-constants": "~15.0.0",
     "expo-image-picker": "~14.7.1",
