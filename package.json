@@ -19,8 +19,5 @@
   },
   "devDependencies": {
     "@babel/core": "^7.23.0"
-  },
-  "resolutions": {
-    "hermes-engine": "~0.73.0"
   }
 }
