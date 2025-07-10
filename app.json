@@ -14,20 +14,12 @@
     "updates": {
       "fallbackToCacheTimeout": 0
     },
-    "assetBundlePatterns": ["**/*"],
-    "ios": {
-      "supportsTablet": true,
-      "bundleIdentifier": "com.avrgpapa.routecastle",
-      "infoPlist": {
-        "UIViewControllerBasedStatusBarAppearance": true,
-        "UIStatusBarStyle": "light-content"
-      }
-    },
+    "assetBundlePatterns": ["**/*"],  // NOW INCLUDED (line 13)
     "android": {
       "package": "com.avrgpapa.routecastle",
       "versionCode": 1,
       "adaptiveIcon": {
-        "foregroundImage": "./assets/icon.png",  // Changed from adaptive-icon.png
+        "foregroundImage": "./assets/icon.png",
         "backgroundColor": "#FFFFFF"
       },
       "permissions": [
@@ -38,13 +30,22 @@
       ],
       "softwareKeyboardLayoutMode": "pan"
     },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.avrgpapa.routecastle",
+      "infoPlist": {
+        "UIViewControllerBasedStatusBarAppearance": true,
+        "UIStatusBarStyle": "light-content"
+      }
+    },
     "plugins": [
       [
         "@rnmapbox/maps",
         {
-          "RNMapboxMapsDownloadToken": "sk.eyJ1IjoiYXZyZ3BhcGEiLCJhIjoiY21jdjkwMzY3MDg4ejJscTJlNnRzazd3dSJ9.z8sPRgeeEz4gfVJyWIQHfA",
+          "RNMapboxMapsDownloadToken": "sk.eyJ1...",
           "RNMapboxMapsUseV11": true,
-          "RNMapboxMapsEnableKotlinNullChecks": false
+          "RNMapboxMapsVersion": "10.15.0",
+          "RNMapboxMapsKotlinVersion": "1.8.22"
         }
       ]
     ],
@@ -52,7 +53,7 @@
       "eas": {
         "projectId": "a10ce5a0-3e52-4ff0-a9a5-d10f3d53a7f4"
       },
-  "opencageApiKey": "164d3314dc4041418021ce63c8095c81"
+      "opencageApiKey": "164d3314dc4041418021ce63c8095c81"
     }
   }
 }
