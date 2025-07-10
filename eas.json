@@ -7,7 +7,7 @@
       "android": {
         "buildType": "apk",
         "gradleCommand": ":app:assembleRelease",
-        "resourceClass": "medium"
+        "config": "default"  // This MUST be a string value
       }
     }
   }
