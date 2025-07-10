@@ -22,13 +22,12 @@
         "UIViewControllerBasedStatusBarAppearance": true,
         "UIStatusBarStyle": "light-content"
       }
-      // Removed: `usesIphoneSafeArea` (not EAS-compatible)
     },
     "android": {
       "package": "com.avrgpapa.routecastle",
       "versionCode": 1,
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./assets/icon.png",  // Changed from adaptive-icon.png
         "backgroundColor": "#FFFFFF"
       },
       "permissions": [
@@ -38,7 +37,6 @@
         "WRITE_EXTERNAL_STORAGE"
       ],
       "softwareKeyboardLayoutMode": "pan"
-      // Removed: `windowSoftInputMode` and `kotlinVersion` (must be configured elsewhere)
     },
     "plugins": [
       [
@@ -54,7 +52,7 @@
       "eas": {
         "projectId": "a10ce5a0-3e52-4ff0-a9a5-d10f3d53a7f4"
       },
-      "opencageApiKey": "164d3314dc4041418021ce63c8095c81"
+  "opencageApiKey": "164d3314dc4041418021ce63c8095c81"
     }
   }
 }
