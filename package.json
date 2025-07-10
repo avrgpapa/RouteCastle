@@ -1,24 +1,25 @@
 {
   "name": "routecastle-app",
   "version": "1.0.0",
-  "private": true,
-  "main": "node_modules/expo/AppEntry.js",
   "scripts": {
     "start": "expo start",
     "android": "expo start --android",
-    "ios": "expo start --ios"
+    "ios": "expo start --ios",
+    "prebuild": "expo export --platform android",
+    "test": "jest"
   },
   "dependencies": {
-    "@rnmapbox/maps": "^10.0.12",
-    "expo": "~50.0.0",
-    "expo-constants": "~15.4.6",
-    "expo-image-picker": "~14.7.1",
+    "@expo/vector-icons": "^13.0.0",
+    "@react-native/assets": "^1.0.0",
+    "@rnmapbox/maps": "^10.15.0",
+    "expo": "~48.0.0",
+    "expo-splash-screen": "~0.18.0",
+    "expo-status-bar": "~1.4.0",
     "react": "18.2.0",
-    "react-native": "0.73.6",
-    "tesseract.js": "^4.1.1"
+    "react-native": "0.71.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.23.0",
-    "@expo/config-plugins": "^7.8.0"
+    "@babel/core": "^7.20.0",
+    "jest": "^29.0.0"
   }
 }
