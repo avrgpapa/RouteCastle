@@ -7,17 +7,7 @@
       "android": {
         "buildType": "apk",
         "gradleCommand": ":app:assembleRelease",
-        "config": "preview",  // Changed from object to string
-        "env": {
-          "MAPBOX_DOWNLOADS_TOKEN": "$(eas secret get MAPBOX_DOWNLOADS_TOKEN)"
-        },
         "resourceClass": "medium"
-      }
-    },
-    "preview": {
-      "distribution": "internal",
-      "android": {
-        "buildType": "apk"
       }
     }
   }
