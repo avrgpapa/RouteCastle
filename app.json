@@ -42,7 +42,7 @@
       [
         "@rnmapbox/maps",
         {
-          "RNMapboxMapsDownloadToken": "sk.eyJ1...",
+          "RNMapboxMapsDownloadToken": "sk.eyJ1IjoiYXZyZ3BhcGEiLCJhIjoiY21jejliMGgyMDV1MDJqb2dvcHNqODJqYiJ9.7cL--8SDZWKb4AL1MIwh2A",
           "RNMapboxMapsUseV11": true,
           "RNMapboxMapsVersion": "10.15.0",
           "RNMapboxMapsKotlinVersion": "1.8.22"
