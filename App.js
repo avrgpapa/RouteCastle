@@ -4,17 +4,13 @@ import * as ImagePicker from 'expo-image-picker';
 import Constants from 'expo-constants';
 import Tesseract from 'tesseract.js';
 import { parseRouteSheet } from './parseRouteSheet';
-
+import MapView, { Marker, UrlTile } from 'react-native-maps'; // Added for react-native-maps
 
 export default function App() {
   const [image, setImage] = useState(null);
   const [stops, setStops] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [viewport, setViewport] = useState({
-    latitude: 37.7749,
-    longitude: -122.4194,
-    zoomLevel: 10,
-  });
+  // Removed viewport state, MapView will use initialRegion
 
   const geocodeAddress = async (address) => {
     try {
@@ -107,28 +103,34 @@ export default function App() {
         <Image source={{ uri: image }} style={styles.previewImage} />
       )}
 
-      <MapboxGL.MapView
+      {/* Map using react-native-maps */}
+      <MapView
         style={styles.map}
-        styleURL="https://demotiles.maplibre.org/style.json"
-        {...viewport}
-        onPress={feature => console.log('Map pressed:', feature)}
+        initialRegion={{
+          latitude: 37.7749, // Default center
+          longitude: -122.4194, // Default center
+          latitudeDelta: 0.0922, // Zoom level
+          longitudeDelta: 0.0421, // Zoom level
+        }}
+        provider={null} // Use default provider (Google Maps on Android, Apple Maps on iOS) or specify 'google'
       >
-        <MapboxGL.UrlTile
+        {/* UrlTile for custom tile layers like OpenStreetMap */}
+        <UrlTile
           urlTemplate="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
           maximumZ={19}
         />
         {stops.map((stop, index) => (
-          <MapboxGL.Marker
+          <Marker
             key={`stop-${index}`}
-            coordinate={[stop.longitude, stop.latitude]}
+            coordinate={{ latitude: stop.latitude, longitude: stop.longitude }} // Correct format for react-native-maps Marker
           >
             <View style={[
               styles.marker,
               { backgroundColor: getPinColor(stop.status) }
             ]} />
-          </MapboxGL.Marker>
+          </Marker>
         ))}
-      </MapboxGL.MapView>
+      </MapView>
     </View>
   );
 }
