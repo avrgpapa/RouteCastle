@@ -14,7 +14,7 @@
     "updates": {
       "fallbackToCacheTimeout": 0
     },
-    "assetBundlePatterns": ["**/*"],  
+    "assetBundlePatterns": ["**/*"],
     "android": {
       "package": "com.avrgpapa.routecastle",
       "versionCode": 1,
@@ -38,17 +38,7 @@
         "UIStatusBarStyle": "light-content"
       }
     },
-    "plugins": [
-      [
-        "@rnmapbox/maps",
-        {
-          "RNMapboxMapsDownloadToken": "sk.eyJ1IjoiYXZyZ3BhcGEiLCJhIjoiY21jemNmdTRlMHEzbjJrcHRjcG53MGVrYSJ9.wFbPfq1qF6yKYVXp4HNXcw",
-          "RNMapboxMapsUseV11": true,
-          "RNMapboxMapsVersion": "10.1.39",
-          "RNMapboxMapsKotlinVersion": "1.8.22"
-        }
-      ]
-    ],
+    "plugins": [],
     "extra": {
       "eas": {
         "projectId": "a10ce5a0-3e52-4ff0-a9a5-d10f3d53a7f4"
