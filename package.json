@@ -1,6 +1,7 @@
 {
   "name": "routecastle-app",
   "version": "1.0.0",
+  "//_dummy_for_cache_bust": "2025-07-11T18:44:13.000Z", // Add this line
   "scripts": {
     "start": "expo start",
     "android": "expo start --android",
