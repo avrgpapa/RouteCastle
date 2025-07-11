@@ -14,7 +14,7 @@
     "updates": {
       "fallbackToCacheTimeout": 0
     },
-    "assetBundlePatterns": ["**/*"],  
+    "assetBundlePatterns": ["**/*"],
     "android": {
       "package": "com.avrgpapa.routecastle",
       "versionCode": 1,
@@ -29,6 +29,7 @@
         "WRITE_EXTERNAL_STORAGE"
       ],
       "softwareKeyboardLayoutMode": "pan"
+      
     },
     "ios": {
       "supportsTablet": true,
@@ -38,7 +39,22 @@
         "UIStatusBarStyle": "light-content"
       }
     },
-    "plugins": [],
+    "plugins": [
+      [
+        "react-native-maps",
+        {
+          "provider": "react-native-maps-osmdroid"
+        }
+      ],
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "usesCleartextTraffic": true // Required for OpenStreetMap tiles over HTTP, or ensure HTTPS
+          }
+        }
+      ]
+    ],
     "extra": {
       "eas": {
         "projectId": "a10ce5a0-3e52-4ff0-a9a5-d10f3d53a7f4"
