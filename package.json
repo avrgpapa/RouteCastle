@@ -16,7 +16,6 @@
     "expo-status-bar": "~1.4.0",
     "react": "18.2.0",
     "react-native": "0.71.14",
-    "expo-modules-autolinking": "~1.2.0",
     "react-native-maps": "1.3.2"
   },
   "devDependencies": {
