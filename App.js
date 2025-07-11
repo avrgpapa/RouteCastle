@@ -3,7 +3,8 @@ import { View, Button, Alert, Text, Image, ActivityIndicator, StyleSheet } from 
 import * as ImagePicker from 'expo-image-picker';
 import Constants from 'expo-constants';
 import Tesseract from 'tesseract.js';
-import { parseRouteSheet } from './parseRouteSheet';
+// FIX: Updated import path to correctly point to the utils folder
+import { parseRouteSheet } from './utils/parseRouteSheet';
 import MapView, { Marker, UrlTile } from 'react-native-maps'; // Added for react-native-maps
 
 export default function App() {
@@ -15,7 +16,8 @@ export default function App() {
   const geocodeAddress = async (address) => {
     try {
       const response = await fetch(
-        `https://api.opencagedata.com/geocode/v1/json?q=${encodeURIComponent(address)}&key=${Constants.expoConfig?.extra?.opencageApiKey || '164d3314dc4041418021ce63c8095c81'}`
+        // YOUR API KEY INSERTED HERE
+        `https://api.opencagedata.com/geocode/v1/json?q=${encodeURIComponent(address)}&key=164d3314dc4041418021ce63c8095c81`
       );
       const data = await response.json();
       if (data.results?.length > 0) {
@@ -32,64 +34,74 @@ export default function App() {
       // Request media library permissions
       const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
       if (status !== 'granted') {
-        Alert.alert('Permission required', 'Please grant media library access to pick an image.');
+        Alert.alert('Permission required', 'Please grant access to your photo library to select an image.');
         return;
       }
 
       let result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        allowsEditing: true,
+        allowsEditing: false,
         quality: 1,
       });
 
       if (!result.canceled) {
         setImage(result.assets[0].uri);
         setLoading(true);
-        setStops([]); // Clear previous stops
-
-        // Perform OCR
-        const { data: { text } } = await Tesseract.recognize(
-          result.assets[0].uri,
-          'eng', // English language
-          { logger: m => console.log(m) } // Optional: log OCR progress
-        );
-
-        const parsedStops = parseRouteSheet(text);
-
-        // Geocode addresses
-        const geocodedStops = await Promise.all(
-          parsedStops.map(async (stop) => {
-            const geo = await geocodeAddress(stop.address);
-            return {
-              ...stop,
-              latitude: geo ? geo.lat : null,
-              longitude: geo ? geo.lng : null,
-            };
-          })
-        );
-        setStops(geocodedStops.filter(stop => stop.latitude !== null));
-        setLoading(false);
+        processImageForOCR(result.assets[0].uri);
       }
     } catch (error) {
-      console.error('Error picking image or performing OCR:', error);
-      Alert.alert('Error', 'Failed to process image.');
+      console.error('Error picking image:', error);
+      Alert.alert('Error', 'Failed to pick an image.');
       setLoading(false);
     }
   };
 
+  const processImageForOCR = async (imageUri) => {
+    try {
+      const { data: { text } } = await Tesseract.recognize(
+        imageUri,
+        'eng',
+        {
+          logger: m => console.log(m)
+        }
+      );
+      console.log('OCR Result:', text);
+      const parsedStops = parseRouteSheet(text, true, true); // Assuming debug and strictStatus as true for now
+      console.log('Parsed Stops:', parsedStops);
+
+      const geocodedStops = [];
+      for (const stop of parsedStops) {
+        const geo = await geocodeAddress(stop.address);
+        if (geo) {
+          geocodedStops.push({ ...stop, latitude: geo.lat, longitude: geo.lng });
+        } else {
+          console.warn(`Could not geocode address: ${stop.address}`);
+        }
+      }
+      setStops(geocodedStops);
+
+    } catch (error) {
+      console.error('OCR or parsing error:', error);
+      Alert.alert('Error', 'Failed to process image or parse route sheet.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Function to determine pin color based on status (example)
   const getPinColor = (status) => {
     switch (status) {
       case 'active': return 'blue';
-      case 'delivered': return 'green';
-      case 'failed': return 'red';
-      case 'skipped': return 'orange';
-      case 'completed': return 'purple';
+      case 'completed': return 'green';
+      case 'pending': return 'orange';
+      case 'cancelled': return 'red';
       default: return 'gray';
     }
   };
 
   return (
     <View style={styles.container}>
+      <Text style={styles.title}>Route Castle</Text>
       <Button title="📸 Scan Route Sheet" onPress={handlePickImage} />
 
       {loading && (
@@ -103,7 +115,7 @@ export default function App() {
         <Image source={{ uri: image }} style={styles.previewImage} />
       )}
 
-      {/* Map using react-native-maps */}
+      {/* MapView from react-native-maps */}
       <MapView
         style={styles.map}
         initialRegion={{
@@ -158,14 +170,16 @@ const styles = StyleSheet.create({
     borderColor: 'white',
   },
   loadingOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
+    ...StyleSheet.absoluteFillObject,
     backgroundColor: 'rgba(255, 255, 255, 0.8)',
     justifyContent: 'center',
     alignItems: 'center',
     zIndex: 10,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginVertical: 10,
   },
 });
