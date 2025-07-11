@@ -3,21 +3,19 @@ import { View, Button, Alert, Text, Image, ActivityIndicator, StyleSheet } from 
 import * as ImagePicker from 'expo-image-picker';
 import Constants from 'expo-constants';
 import Tesseract from 'tesseract.js';
-// FIX: Updated import path to correctly point to the utils folder
 import { parseRouteSheet } from './utils/parseRouteSheet';
-import MapView, { Marker, UrlTile } from 'react-native-maps'; // Added for react-native-maps
+// Import PROVIDER_OSMDROID specifically for OpenStreetMap
+import MapView, { Marker, UrlTile, PROVIDER_OSMDROID } from 'react-native-maps';
 
 export default function App() {
   const [image, setImage] = useState(null);
   const [stops, setStops] = useState([]);
   const [loading, setLoading] = useState(false);
-  // Removed viewport state, MapView will use initialRegion
 
   const geocodeAddress = async (address) => {
     try {
       const response = await fetch(
-        // YOUR API KEY INSERTED HERE
-        `https://api.opencagedata.com/geocode/v1/json?q=${encodeURIComponent(address)}&key=164d3314dc4041418021ce63c8095c81`
+        `https://api.opencagedata.com/geocode/v1/json?q=${encodeURIComponent(address)}&key=${Constants.expoConfig?.extra?.opencageApiKey || 'YOUR_OPENCAGE_API_KEY_HERE'}`
       );
       const data = await response.json();
       if (data.results?.length > 0) {
@@ -31,7 +29,6 @@ export default function App() {
 
   const handlePickImage = async () => {
     try {
-      // Request media library permissions
       const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
       if (status !== 'granted') {
         Alert.alert('Permission required', 'Please grant access to your photo library to select an image.');
@@ -66,7 +63,7 @@ export default function App() {
         }
       );
       console.log('OCR Result:', text);
-      const parsedStops = parseRouteSheet(text, true, true); // Assuming debug and strictStatus as true for now
+      const parsedStops = parseRouteSheet(text, true, true);
       console.log('Parsed Stops:', parsedStops);
 
       const geocodedStops = [];
@@ -88,7 +85,6 @@ export default function App() {
     }
   };
 
-  // Function to determine pin color based on status (example)
   const getPinColor = (status) => {
     switch (status) {
       case 'active': return 'blue';
@@ -115,18 +111,17 @@ export default function App() {
         <Image source={{ uri: image }} style={styles.previewImage} />
       )}
 
-      {/* MapView from react-native-maps */}
       <MapView
         style={styles.map}
+        provider={PROVIDER_OSMDROID} 
         initialRegion={{
           latitude: 37.7749, // Default center
           longitude: -122.4194, // Default center
           latitudeDelta: 0.0922, // Zoom level
           longitudeDelta: 0.0421, // Zoom level
         }}
-        provider={null} // Use default provider (Google Maps on Android, Apple Maps on iOS) or specify 'google'
       >
-        {/* UrlTile for custom tile layers like OpenStreetMap */}
+        {/* UrlTile will now overlay on the OSMDroid base map */}
         <UrlTile
           urlTemplate="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
           maximumZ={19}
@@ -134,7 +129,7 @@ export default function App() {
         {stops.map((stop, index) => (
           <Marker
             key={`stop-${index}`}
-            coordinate={{ latitude: stop.latitude, longitude: stop.longitude }} // Correct format for react-native-maps Marker
+            coordinate={{ latitude: stop.latitude, longitude: stop.longitude }}
           >
             <View style={[
               styles.marker,
