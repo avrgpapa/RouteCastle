@@ -44,7 +44,7 @@
         {
           "RNMapboxMapsDownloadToken": "sk.eyJ1IjoiYXZyZ3BhcGEiLCJhIjoiY21jejliMGgyMDV1MDJqb2dvcHNqODJqYiJ9.7cL--8SDZWKb4AL1MIwh2A",
           "RNMapboxMapsUseV11": true,
-          "RNMapboxMapsVersion": "10.6.0",
+          "RNMapboxMapsVersion": "10.1.39",
           "RNMapboxMapsKotlinVersion": "1.8.22"
         }
       ]
