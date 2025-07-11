@@ -1,12 +1,10 @@
 import React, { useState } from 'react';
 import { View, Button, Alert, Text, Image, ActivityIndicator, StyleSheet } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
-import MapboxGL from '@rnmapbox/maps';
 import Constants from 'expo-constants';
 import Tesseract from 'tesseract.js';
 import { parseRouteSheet } from './parseRouteSheet';
 
-MapboxGL.setAccessToken(null);
 
 export default function App() {
   const [image, setImage] = useState(null);
