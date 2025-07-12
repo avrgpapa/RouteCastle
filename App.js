@@ -2,10 +2,9 @@ import React, { useState } from 'react';
 import { View, Button, Alert, Text, Image, ActivityIndicator, StyleSheet } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import Constants from 'expo-constants';
-import Tesseract from 'tesseract.js';
+// import Tesseract from 'tesseract.js'; // Temporarily removed for debugging
 import { parseRouteSheet } from './utils/parseRouteSheet';
-// Import PROVIDER_OSMDROID specifically for OpenStreetMap
-import MapView, { Marker, UrlTile, PROVIDER_OSMDROID } from 'react-native-maps';
+import MapView, { Marker, UrlTile, PROVIDER_OSMDROID } from 'react-native-maps'; // Added for react-native-maps
 
 export default function App() {
   const [image, setImage] = useState(null);
@@ -27,77 +26,86 @@ export default function App() {
     return null;
   };
 
-  const handlePickImage = async () => {
+  const handleProcessImage = async (uri) => {
+    setLoading(true);
     try {
-      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-      if (status !== 'granted') {
-        Alert.alert('Permission required', 'Please grant access to your photo library to select an image.');
-        return;
-      }
+      // Tesseract.js related code temporarily removed for debugging
+      // const { data: { text } } = await Tesseract.recognize(uri, 'eng');
+      // console.log('OCR Result:', text);
+      // const parsedData = parseRouteSheet(text);
+      // console.log('Parsed Data:', parsedData);
 
-      let result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        allowsEditing: false,
-        quality: 1,
-      });
+      // Placeholder for parsed data without Tesseract
+      const parsedData = {
+        stops: [
+          { address: "1600 Amphitheatre Parkway, Mountain View, CA", latitude: 37.4221, longitude: -122.0841, status: "pending" },
+          { address: "1 Infinite Loop, Cupertino, CA", latitude: 37.3318, longitude: -122.0312, status: "completed" }
+        ],
+        summary: "Dummy data for testing without OCR"
+      };
 
-      if (!result.canceled) {
-        setImage(result.assets[0].uri);
-        setLoading(true);
-        processImageForOCR(result.assets[0].uri);
-      }
-    } catch (error) {
-      console.error('Error picking image:', error);
-      Alert.alert('Error', 'Failed to pick an image.');
-      setLoading(false);
-    }
-  };
-
-  const processImageForOCR = async (imageUri) => {
-    try {
-      const { data: { text } } = await Tesseract.recognize(
-        imageUri,
-        'eng',
-        {
-          logger: m => console.log(m)
-        }
+      const stopsWithCoords = await Promise.all(
+        parsedData.stops.map(async (stop) => {
+          if (!stop.latitude || !stop.longitude) {
+            const coords = await geocodeAddress(stop.address);
+            return {
+              ...stop,
+              latitude: coords ? coords.lat : null,
+              longitude: coords ? coords.lng : null,
+            };
+          }
+          return stop;
+        })
       );
-      console.log('OCR Result:', text);
-      const parsedStops = parseRouteSheet(text, true, true);
-      console.log('Parsed Stops:', parsedStops);
-
-      const geocodedStops = [];
-      for (const stop of parsedStops) {
-        const geo = await geocodeAddress(stop.address);
-        if (geo) {
-          geocodedStops.push({ ...stop, latitude: geo.lat, longitude: geo.lng });
-        } else {
-          console.warn(`Could not geocode address: ${stop.address}`);
-        }
-      }
-      setStops(geocodedStops);
-
+      setStops(stopsWithCoords.filter(stop => stop.latitude && stop.longitude));
     } catch (error) {
-      console.error('OCR or parsing error:', error);
-      Alert.alert('Error', 'Failed to process image or parse route sheet.');
+      console.error('Image processing or OCR failed:', error);
+      Alert.alert('Error', 'Failed to process image. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
+  const handlePickImage = async () => {
+    try {
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('Permission required', 'Please grant access to your photo library to select images.');
+        return;
+      }
+
+      let result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        quality: 1,
+      });
+
+      if (!result.canceled) {
+        setImage(result.assets[0].uri);
+        handleProcessImage(result.assets[0].uri);
+      }
+    } catch (error) {
+      console.error('ImagePicker error:', error);
+      Alert.alert('Error', 'Failed to pick image.');
+    }
+  };
+
   const getPinColor = (status) => {
     switch (status) {
-      case 'active': return 'blue';
-      case 'completed': return 'green';
-      case 'pending': return 'orange';
-      case 'cancelled': return 'red';
-      default: return 'gray';
+      case 'pending':
+        return 'orange';
+      case 'completed':
+        return 'green';
+      case 'failed':
+        return 'red';
+      default:
+        return 'blue';
     }
   };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Route Castle</Text>
+      <Text style={styles.title}>RouteCastle</Text>
       <Button title="📸 Scan Route Sheet" onPress={handlePickImage} />
 
       {loading && (
@@ -113,7 +121,7 @@ export default function App() {
 
       <MapView
         style={styles.map}
-        provider={PROVIDER_OSMDROID} 
+        provider={PROVIDER_OSMDROID} // Explicitly use OSMDroid
         initialRegion={{
           latitude: 37.7749, // Default center
           longitude: -122.4194, // Default center
@@ -147,6 +155,12 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 10,
   },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 20,
+    textAlign: 'center',
+  },
   map: {
     flex: 1,
     marginTop: 10,
@@ -157,13 +171,6 @@ const styles = StyleSheet.create({
     resizeMode: 'contain',
     marginVertical: 10,
   },
-  marker: {
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    borderWidth: 2,
-    borderColor: 'white',
-  },
   loadingOverlay: {
     ...StyleSheet.absoluteFillObject,
     backgroundColor: 'rgba(255, 255, 255, 0.8)',
@@ -171,10 +178,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     zIndex: 10,
   },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    marginVertical: 10,
+  marker: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    borderWidth: 2,
+    borderColor: 'white',
   },
 });
